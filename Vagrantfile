@@ -8,14 +8,14 @@
 Vagrant.configure("2") do |config|
   config.vm.define "bpc_base" do |v|
     v.vm.provider "docker" do |d|
-      d.build_dir = "ballpointcarrot_base"
+      d.build_dir = "bootstrap"
       d.build_args = ["-t=bpc_base"]
     end
   end
 
   config.vm.define "ballpointcarrot" do |v|
     v.vm.provider "docker" do |d|
-      d.cmd = ["/sbin/my_init", "--enable-insecure-key"]
+      d.cmd = ["/sbin/my_init"]
       d.image = "bpc_base"
       d.has_ssh = true
     end
@@ -24,6 +24,8 @@ Vagrant.configure("2") do |config|
     v.ssh.private_key_path = "bpc"
     v.ssh.forward_agent = true
 
-    v.vm.provision "shell", inline: "echo hello", privileged: false
+    v.vm.provision "ansible" do |ans|
+      ans.playbook = "dev_base/playbook.yml"
+    end
   end
 end
