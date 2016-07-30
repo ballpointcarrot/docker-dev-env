@@ -1,0 +1,37 @@
+- name: Install rbenv from git
+  git: repo="https://github.com/rbenv/rbenv.git" dest=/home/{{username}}/.rbenv
+  become: yes
+  become_user: "{{username}}"
+
+- name: Install ruby-build into rbenv
+  git: repo="https://github.com/rbenv/ruby-build.git" dest=/home/{{username}}/.rbenv/plugins/ruby-build
+  become: yes
+  become_user: "{{username}}"
+
+- name: Install ruby-build dependencies from repository
+  apt: pkg={{item}} state=installed
+  with_items:
+    - bzip2
+    - autoconf
+    - bison
+    - build-essential
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm3
+    - libgdbm-dev
+
+- name: Add required script loading into ZSH configuration.
+  copy: src=rbenv_zsh dest=/home/{{username}}/.zsh.d/rbenv
+
+- name: Install ruby version for container default.
+  shell: "source .zshrc && rbenv install {{ruby_version}}"
+  become: yes
+  become_user: "{{username}}"
+  args:
+    creates: /home/{{username}}/.rbenv/versions/{{ruby_version}}
+    executable: "/usr/bin/zsh"
+

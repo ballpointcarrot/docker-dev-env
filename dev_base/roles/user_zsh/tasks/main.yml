@@ -5,6 +5,11 @@
 - name: Create User account with ZSH set as shell
   user: name={{username}} shell=/usr/bin/zsh generate_ssh_key=yes password=unused
 
+- name: Allow user account sudo access sans password
+  shell: echo "{{username}} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-user-account
+  args:
+    creates: /etc/sudoers.d/99-user-account
+
 - name: Install Git from repository
   apt: pkg=git state=installed
 
@@ -16,6 +21,7 @@
   become: yes
   become_user: "{{username}}"
 
+- stat: path=l
 - name: Add .zshrc to user home
   template: dest=/home/{{username}}/.zshrc src=zshrc.j2
   become: yes
@@ -34,9 +40,12 @@
   shell: "cat id_rsa.pub >> authorized_keys"
   args:
     chdir: "/home/{{username}}/.ssh"
+    creates: /home/{{username}}/.ssh/authorized_keys
   become: yes
   become_user: "{{username}}"
 
 - name: Copy generated keypair to provisioner (if present)
   command: cp /home/{{username}}/.ssh/id_rsa /vagrant/dev_keypair
-  when: vagrant.stat.exists == True
+  args:
+    creates: /vagrant/dev_keypair
+  when: (vagrant.stat.exists == True)

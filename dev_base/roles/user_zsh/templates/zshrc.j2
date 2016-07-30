@@ -30,12 +30,13 @@ if [ "$COLORTERM" = "gnome-terminal" ] || [ "$COLORTERM" = "xfce4-terminal" ] ||
   fi
 fi
 
-HOMEPATH=$HOME/bin:$HOME/.local/bin:$HOME/.cask/bin:$HOME/.cargo/bin
-export PATH=$HOMEPATH:$PATH
-
 for file in $(find $HOME/.zsh.d -type f); do
   source $file
 done
+
+export HOMEPATH=$HOME/bin:$HOME/.local/bin:$HOMEPATH
+export PATH=$HOMEPATH:$PATH
+
 
 # TMUX
 [[ $- != *i* ]] && return

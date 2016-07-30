@@ -1,0 +1,3 @@
+export HOMEPATH=$HOME/.rbenv/bin:$HOMEPATH
+
+eval "$(rbenv init -)"
