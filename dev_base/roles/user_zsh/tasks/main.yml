@@ -1,0 +1,42 @@
+---
+- name: Install ZSH from repository
+  apt: pkg=zsh state=installed update_cache=true
+
+- name: Create User account with ZSH set as shell
+  user: name={{username}} shell=/usr/bin/zsh generate_ssh_key=yes password=unused
+
+- name: Install Git from repository
+  apt: pkg=git state=installed
+
+- name: Install tmux from repository
+  apt: pkg=tmux state=installed
+
+- name: Retrieve Oh My Zsh from Git
+  git: repo=https://github.com/robbyrussell/oh-my-zsh.git dest=/home/{{username}}/.oh-my-zsh
+  become: yes
+  become_user: "{{username}}"
+
+- name: Add .zshrc to user home
+  template: dest=/home/{{username}}/.zshrc src=zshrc.j2
+  become: yes
+  become_user: "{{username}}"
+
+- name: Create .zsh.d for zsh extensions
+  file: path=/home/{{username}}/.zsh.d state=directory owner="{{username}}" group="{{username}}"
+
+- name: Add .tmux.conf to user home
+  copy: src=tmux_config dest=/home/{{username}}/.tmux.conf owner="{{username}}" group="{{username}}"
+
+- stat: path=/vagrant
+  register: vagrant
+
+- name: Add generated public key to authorized keys
+  shell: "cat id_rsa.pub >> authorized_keys"
+  args:
+    chdir: "/home/{{username}}/.ssh"
+  become: yes
+  become_user: "{{username}}"
+
+- name: Copy generated keypair to provisioner (if present)
+  command: cp /home/{{username}}/.ssh/id_rsa /vagrant/dev_keypair
+  when: vagrant.stat.exists == True
