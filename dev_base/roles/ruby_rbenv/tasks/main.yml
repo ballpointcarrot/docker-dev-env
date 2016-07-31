@@ -28,10 +28,13 @@
   copy: src=rbenv_zsh dest=/home/{{username}}/.zsh.d/rbenv
 
 - name: Install ruby version for container default.
-  shell: "source .zshrc && rbenv install {{ruby_version}}"
+  shell: "source .zshrc && rbenv install {{ruby_version}} && rbenv rehash && rbenv global {{ruby_version}}"
   become: yes
   become_user: "{{username}}"
+  async: 450
+  poll: 30
   args:
     creates: /home/{{username}}/.rbenv/versions/{{ruby_version}}
+    chdir: /home/{{username}}
     executable: "/usr/bin/zsh"
 

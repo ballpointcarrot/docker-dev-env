@@ -1,0 +1,21 @@
+---
+- name: Install nvm_zsh script from git
+  git: repo="https://github.com/lukechilds/zsh-nvm" dest=/home/{{username}}/.zsh_nvm
+  become: yes
+  become_user: "{{username}}"
+
+- name: point nvm_zsh script into zsh autoloads.
+  command: "cp .zsh_nvm/zsh-nvm.plugin.zsh .zsh.d/nvm"
+  args:
+    chdir: /home/{{username}}
+  become: yes
+  become_user: "{{username}}"
+
+- name: install a default version of node.
+  shell: "source .zshrc && nvm install {{node_version}} && nvm alias default {{node_version}}"
+  become: yes
+  become_user: "{{username}}"
+  args:
+    creates: /home/{{username}}/.nvm/versions/node/{{node_version}}
+    chdir: /home/{{username}}
+    executable: "/usr/bin/zsh"

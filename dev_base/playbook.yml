@@ -3,3 +3,4 @@
   roles:
     - user_zsh
     - ruby_rbenv
+    - node

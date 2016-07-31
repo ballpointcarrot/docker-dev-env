@@ -33,7 +33,8 @@
 - name: Add .tmux.conf to user home
   copy: src=tmux_config dest=/home/{{username}}/.tmux.conf owner="{{username}}" group="{{username}}"
 
-- stat: path=/vagrant
+- name: Determine if we have a mapping to Vagrant.
+  stat: path=/vagrant
   register: vagrant
 
 - name: Add generated public key to authorized keys
@@ -45,7 +46,5 @@
   become_user: "{{username}}"
 
 - name: Copy generated keypair to provisioner (if present)
-  command: cp /home/{{username}}/.ssh/id_rsa /vagrant/dev_keypair
-  args:
-    creates: /vagrant/dev_keypair
+  fetch: src=/home/{{username}}/.ssh/id_rsa dest=dev_keypair flat=yes
   when: (vagrant.stat.exists == True)
