@@ -4,6 +4,9 @@ bind - split-window -v
 unbind '"'
 unbind %
 
+# Terminal as 256-color
+set -g default-terminal "screen-256color"
+
 # Status update interval
 set -g status-interval 1
 
